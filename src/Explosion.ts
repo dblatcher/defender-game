@@ -1,7 +1,6 @@
 import { AbstractGradientFill, Body, BodyData, Effect, EffectData, ExpandingRing, Geometry, Shape, shapes } from "../../worlds/src";
-import { CollisionReport } from "../../worlds/src/collisionDetection";
 import { ExpandingRingData } from "../../worlds/src/Effect";
-import { Circle } from "../../worlds/src/geometry";
+import { Bomb } from "./Bomb";
 
 
 class ExplosionData implements ExpandingRingData {
@@ -24,14 +23,13 @@ class Explosion extends ExpandingRing {
     tick() {
         ExpandingRing.prototype.tick.apply(this, [])
 
-        this.world.bodies.forEach(body => {
-            if (Geometry.areCirclesIntersecting(this, body.shapeValues)) {
-                body.leaveWorld()
-                new ExpandingRing({ x: body.data.x, y: body.data.y, size: 50, duration: 20 }).enterWorld(this.world)
-
-                // can create new explosion to detonate chain reactions!
-            }
-        })
+        this.world.bodies
+            .filter(body => body.typeId == "Bomb")
+            .forEach(body => {
+                if (Geometry.areCirclesIntersecting(this, body.shapeValues)) {
+                    (body as Bomb).explode();
+                }
+            })
     }
 }
 

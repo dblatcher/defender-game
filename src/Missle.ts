@@ -1,0 +1,124 @@
+import { Body, Force, BodyData, Shape, Geometry, RenderFunctions, CollisionDetection, ViewPort, ExpandingRing } from '../../worlds/src/index'
+import { Bomb } from './Bomb'
+import { Explosion } from './Explosion'
+
+const { getVectorX, getVectorY, reverseHeading } = Geometry
+
+class MissileData implements BodyData {
+    x: number
+    y: number
+    heading?: number
+    size?: number
+    color?: string
+    density?: number
+    shape?: Shape
+    elasticity?: number
+
+    headingFollowsDirection?: true
+    fillColor?: string
+    thrust?: number
+    maxThrust?: number
+    target?: Geometry.Point
+}
+
+class Missile extends Body {
+    data: MissileData
+    constructor(config: MissileData, momentum: Force = null) {
+        super(config, momentum);
+        this.data.color = config.color || 'red'
+        this.data.fillColor = config.fillColor || 'white'
+        this.data.thrust = config.thrust || 0
+        this.data.maxThrust = config.maxThrust || 100
+        this.data.target = config.target || null
+    }
+
+    get typeId() { return 'Missile' }
+
+    move() {
+        Body.prototype.move.apply(this, [])
+
+        if (this.shapeValues.y < this.data.target.y)  {
+            this.explode()
+        }
+    }
+
+    renderOnCanvas(ctx: CanvasRenderingContext2D, viewPort: ViewPort) {
+
+        const { x, y, size, heading, color, fillColor, thrust, maxThrust } = this.data
+
+        let frontPoint = {
+            x: x + getVectorX(size, heading),
+            y: y + getVectorY(size, heading)
+        }
+
+        const backSideAngle = Math.PI * .75
+
+        let backLeftPoint = {
+            x: x + getVectorX(size, heading - backSideAngle),
+            y: y + getVectorY(size, heading - backSideAngle)
+        }
+        let backRightPoint = {
+            x: x + getVectorX(size, heading + backSideAngle),
+            y: y + getVectorY(size, heading + backSideAngle)
+        }
+
+        RenderFunctions.renderPolygon.onCanvas(ctx, [frontPoint, backLeftPoint, backRightPoint], { strokeColor: color, fillColor }, viewPort)
+
+
+        if (thrust > 0) {
+            let backPoint = {
+                x: x - getVectorX(size, heading),
+                y: y - getVectorY(size, heading)
+            }
+
+            let flicker = (Math.random() - .5) * .5
+            let flameEndPoint = {
+                x: backPoint.x + getVectorX(size * (thrust / maxThrust) * 2, reverseHeading(heading + flicker)),
+                y: backPoint.y + getVectorY(size * (thrust / maxThrust) * 2, reverseHeading(heading + flicker))
+            }
+
+            RenderFunctions.renderPolygon.onCanvas(ctx, [backRightPoint, flameEndPoint, backLeftPoint], { strokeColor: 'blue', fillColor: 'green' }, viewPort)
+        }
+    }
+
+    changeThrottle(change: number) {
+        let newAmount = this.data.thrust + change
+        if (newAmount < 0) { newAmount = 0 }
+        if (newAmount > this.data.maxThrust) { newAmount = this.data.maxThrust }
+        this.data.thrust = newAmount
+    }
+
+    updateMomentum() {
+        Body.prototype.updateMomentum.apply(this, [])
+        const { thrust, heading } = this.data
+        const thrustForce = new Force(thrust / this.mass, heading)
+        this.momentum = Force.combine([this.momentum, thrustForce])
+    }
+
+    explode() {
+        this.leaveWorld()
+
+        new Explosion({
+            x: this.data.x,
+            y: this.data.y,
+            duration: 20,
+            size: this.data.size * 4,
+            color: 'red',
+        }).enterWorld(this.world)
+    }
+
+    handleCollision(report: CollisionDetection.CollisionReport) {
+        if (report) {
+            const otherThing = report.item1 === this ? report.item2 : report.item1
+            if (otherThing.typeId === 'Bomb') {
+                this.explode();
+                (otherThing as Bomb).explode;
+            }
+        }
+
+        Body.prototype.handleCollision(report)
+    }
+
+}
+
+export { Missile, MissileData }
