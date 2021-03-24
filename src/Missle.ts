@@ -101,8 +101,8 @@ class Missile extends Body {
         new Explosion({
             x: this.data.x,
             y: this.data.y,
-            duration: 20,
-            size: this.data.size * 4,
+            duration: 30,
+            size: this.data.size * 6,
             color: 'red',
         }).enterWorld(this.world)
     }
@@ -113,10 +113,11 @@ class Missile extends Body {
             if (otherThing.typeId === 'Bomb') {
                 this.explode();
                 (otherThing as Bomb).explode;
+            } else {
+                Body.prototype.handleCollision(report)
             }
         }
 
-        Body.prototype.handleCollision(report)
     }
 
 }
