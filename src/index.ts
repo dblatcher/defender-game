@@ -76,12 +76,16 @@ function handleClick(event: PointerEvent) {
     const target = viewPort.locateClick(event, false)
     if (!target) { return }
 
-    const closestSilo = world.bodies.filter(body => body.typeId === "MissileSilo")
-    .sort((siloA, siloB) =>
-        Engine.Geometry.getDistanceBetweenPoints(siloA.shapeValues, target) - Engine.Geometry.getDistanceBetweenPoints(siloB.shapeValues, target)
-    )[0] as MissileSilo
+    const closestSilo = world.bodies
+        .filter(body => body.typeId === "MissileSilo")
+        .filter((silo) => !(silo as MissileSilo).data.isDestroyed)
+        .sort((siloA, siloB) =>
+            Engine.Geometry.getDistanceBetweenPoints(siloA.shapeValues, target) - Engine.Geometry.getDistanceBetweenPoints(siloB.shapeValues, target)
+        )[0] as MissileSilo
 
-    closestSilo.launchMissle(target)
+    if (closestSilo) {
+        closestSilo.launchMissle(target)
+    }
 }
 
 function handleMousemove(event: PointerEvent) {
