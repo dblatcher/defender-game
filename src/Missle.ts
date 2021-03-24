@@ -19,6 +19,10 @@ class MissileData implements BodyData {
     thrust?: number
     maxThrust?: number
     target?: Geometry.Point
+
+    hasExplodedAlready?: boolean;
+    explosionSize?: number
+    explosionDuration?: number
 }
 
 class Missile extends Body {
@@ -30,6 +34,9 @@ class Missile extends Body {
         this.data.thrust = config.thrust || 0
         this.data.maxThrust = config.maxThrust || 100
         this.data.target = config.target || null
+        this.data.hasExplodedAlready = config.hasExplodedAlready || false
+        this.data.explosionDuration = config.explosionDuration || 10
+        this.data.explosionSize = config.explosionSize || 100
     }
 
     get typeId() { return 'Missile' }
@@ -37,7 +44,7 @@ class Missile extends Body {
     move() {
         Body.prototype.move.apply(this, [])
 
-        if (this.shapeValues.y < this.data.target.y)  {
+        if (this.shapeValues.y < this.data.target.y) {
             this.explode()
         }
     }
@@ -96,28 +103,28 @@ class Missile extends Body {
     }
 
     explode() {
-        this.leaveWorld()
 
+        const { hasExplodedAlready, explosionSize, explosionDuration, x, y, } = this.data
+
+        if (hasExplodedAlready) { return }
+        this.leaveWorld()
+        this.data.hasExplodedAlready = true
         new Explosion({
-            x: this.data.x,
-            y: this.data.y,
-            duration: 30,
-            size: this.data.size * 6,
+            x, y,
+            duration: explosionDuration,
+            size: explosionSize,
             color: 'red',
         }).enterWorld(this.world)
     }
 
     handleCollision(report: CollisionDetection.CollisionReport) {
-        if (report) {
-            const otherThing = report.item1 === this ? report.item2 : report.item1
-            if (otherThing.typeId === 'Bomb') {
-                this.explode();
-                (otherThing as Bomb).explode;
-            } else {
-                Body.prototype.handleCollision(report)
-            }
+        const otherThing = report.item1 === this ? report.item2 : report.item1
+        if (otherThing.typeId === 'Bomb') {
+            this.explode();
+            (otherThing as Bomb).explode;
+        } else {
+            Body.prototype.handleCollision(report)
         }
-
     }
 
 }

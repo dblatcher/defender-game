@@ -10,16 +10,13 @@ class Bomb extends Body {
 
 
     handleCollision(report: CollisionDetection.CollisionReport) {
-        if (report) {
-            const otherThing = report.item1 === this ? report.item2 : report.item1
-            if (otherThing.typeId !== 'Bomb') {
-                this.explode();
-                (otherThing as Missile).explode;
-            } else {
-                Body.prototype.handleCollision(report)
-            }
+        const otherThing = report.item1 === this ? report.item2 : report.item1
+        if (otherThing.typeId !== 'Bomb') {
+            this.explode();
+            (otherThing as Missile).explode;
+        } else {
+            Body.prototype.handleCollision(report)
         }
-
     }
 
     explode() {

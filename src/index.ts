@@ -1,6 +1,6 @@
 import * as Engine from '../../worlds/src/index'
 import { Bomb } from './Bomb'
-import { Missile } from './Missle'
+import { MissileSilo } from './MissileSilo'
 
 import './style.css'
 
@@ -18,44 +18,21 @@ const ground = new Engine.Body({
 })
 
 const missleLaunchers = [
-    new Engine.Body({
-        shape: Engine.shapes.circle,
-        fillColor: 'blue',
-        x: worldWidth * (1 / 4), y: worldHeight - 100, size: 100,
-        elasticity: .1,
-        immobile: true,
+    new MissileSilo({
+        fillColor: 'blue', color: 'red',
+        x: worldWidth * (1 / 4), y: worldHeight - 150,
+        size: 150,
         renderHeadingIndicator: true,
     }),
-    new Engine.Body({
-        shape: Engine.shapes.circle,
+    new MissileSilo({
         fillColor: 'blue',
-        x: worldWidth * (3 / 4), y: worldHeight - 100, size: 100,
-        elasticity: .1,
-        immobile: true,
+        x: worldWidth * (3 / 4), y: worldHeight - 150,
+        size: 150,
         renderHeadingIndicator: true,
-        heading: Math.PI
     }),
 ]
 
-function launchMissle(target: Engine.Geometry.Point) {
 
-    const missleLauncher = missleLaunchers.sort((bodyA, bodyB) =>
-        Engine.Geometry.getDistanceBetweenPoints(bodyA.shapeValues, target) - Engine.Geometry.getDistanceBetweenPoints(bodyB.shapeValues, target)
-    )[0]
-
-    if (target.y > missleLauncher.shapeValues.top) { return }
-
-    const headingFromLauncher = Engine.Geometry.getHeadingFromPointToPoint(target, missleLauncher.shapeValues)
-    const startingPoint = Engine.Geometry.translatePoint(missleLauncher.shapeValues, Engine.Geometry.getXYVector(missleLauncher.shapeValues.radius + 10, headingFromLauncher))
-
-    new Missile({
-        x: startingPoint.x, y: startingPoint.y,
-        heading: headingFromLauncher,
-        target,
-        thrust: 20000, maxThrust: 20000, density: .2,
-        size: 15
-    }).enterWorld(world)
-}
 
 function addRandomBombs(quantity: number) {
     let x: number, forceDirection: number, forceMagnitude: number, i = 0;
@@ -96,19 +73,26 @@ const viewPort = Engine.ViewPort.fitToSize(world, canvas, 750, 500)
 
 
 function handleClick(event: PointerEvent) {
-    const worldPoint = viewPort.locateClick(event, false)
-    if (!worldPoint) { return }
-    launchMissle(worldPoint)
+    const target = viewPort.locateClick(event, false)
+    if (!target) { return }
+
+    const closestSilo = world.bodies.filter(body => body.typeId === "MissileSilo")
+    .sort((siloA, siloB) =>
+        Engine.Geometry.getDistanceBetweenPoints(siloA.shapeValues, target) - Engine.Geometry.getDistanceBetweenPoints(siloB.shapeValues, target)
+    )[0] as MissileSilo
+
+    closestSilo.launchMissle(target)
 }
 
 function handleMousemove(event: PointerEvent) {
     const worldPoint = viewPort.locateClick(event, false)
     if (!worldPoint) { return }
 
-    missleLaunchers.forEach(missleLauncher => {
-        if (worldPoint.y > missleLauncher.shapeValues.top) { return }
-        missleLauncher.data.heading= Engine.Geometry.getHeadingFromPointToPoint(worldPoint, missleLauncher.shapeValues)
-    })
+    world.bodies.filter(body => body.typeId === "MissileSilo")
+        .forEach(silo => {
+            if (worldPoint.y > silo.shapeValues.top) { return }
+            silo.data.heading = Engine.Geometry.getHeadingFromPointToPoint(worldPoint, silo.shapeValues)
+        })
 }
 
 let tickCount = 0
