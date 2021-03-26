@@ -114,6 +114,7 @@ class Missile extends Body {
             duration: explosionDuration,
             size: explosionSize,
             color: 'red',
+            isFromPlayer: true,
         }).enterWorld(this.world)
     }
 

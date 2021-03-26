@@ -35,6 +35,7 @@ class DefenderGame {
             mousemove: null,
         };
         this.handleTick = this.handleTick.bind(this)
+        this.handlePoints = this.handlePoints.bind(this)
 
         if (this.elements.pauseButton) {
             this.elements.pauseButton.addEventListener('click', this.togglePause.bind(this))
@@ -56,12 +57,14 @@ class DefenderGame {
         this.score = 0
         this.level = 1
         this.world.ticksPerSecond = 50
+        this.renderScore()
     }
 
     reset() {
         this.canvas.removeEventListener('click', this.eventHandlers.click)
         this.canvas.removeEventListener('mousemove', this.eventHandlers.mousemove)
         this.world.emitter.off('tick', this.handleTick)
+        this.world.emitter.off('points', this.handlePoints)
         this.viewPort.unsetWorld()
 
         this.setToInitialState()
@@ -87,6 +90,7 @@ class DefenderGame {
         this.canvas.addEventListener('mousemove', this.eventHandlers.mousemove)
 
         this.world.emitter.on('tick', this.handleTick)
+        this.world.emitter.on('points', this.handlePoints)
     }
 
     togglePause() {
@@ -98,7 +102,7 @@ class DefenderGame {
     }
 
     pause() {
-        if (this.status !== "PLAY" ||  !this.world) { return }
+        if (this.status !== "PLAY" || !this.world) { return }
         this.status = "PAUSE"
         this.world.ticksPerSecond = 0
     }
@@ -109,15 +113,30 @@ class DefenderGame {
         this.world.ticksPerSecond = 50
     }
 
+    renderScore() {
+        if (this.elements.score) {
+            let scoreString = this.score.toString()
+            let leadingZeros = ""
+
+            for (let i = 0; i < 5 - scoreString.length; i++) {
+                leadingZeros = leadingZeros + "0"
+            }
+
+            this.elements.score.innerHTML = leadingZeros + scoreString
+        }
+    }
+
+    handlePoints(points: number) {
+        this.score += points
+        this.renderScore()
+    }
+
     handleTick() {
         if (this.tickCount % 200 == 0) {
             this.addRandomBombs(Math.min(Math.floor(2 + this.tickCount / 400), 15))
         }
         this.tickCount++;
 
-        if (this.elements.score) {
-            this.elements.score.innerHTML = this.score.toPrecision(4)
-        }
         if (this.elements.level) {
             this.elements.level.innerHTML = this.level.toString()
         }

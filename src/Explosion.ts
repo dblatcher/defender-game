@@ -11,13 +11,15 @@ class ExplosionData implements ExpandingRingData {
     duration: number
     size: number
     color?: string
+    isFromPlayer?: boolean
 }
 
 class Explosion extends ExpandingRing {
-    data: ExplosionData
+    isFromPlayer:boolean
 
     constructor(data: ExplosionData) {
         super(data)
+        this.isFromPlayer = data.isFromPlayer || false
     }
 
 
@@ -28,7 +30,11 @@ class Explosion extends ExpandingRing {
             .filter(body => body.typeId == "Bomb")
             .forEach(body => {
                 if (Geometry.areCirclesIntersecting(this, body.shapeValues)) {
-                    (body as Bomb).explode();
+                    (body as Bomb).explode(this.isFromPlayer);
+
+                    if (this.isFromPlayer) {
+                        (body as Bomb).reportPoints();
+                    }
                 }
             })
 
