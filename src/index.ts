@@ -6,35 +6,36 @@ import { MissileSilo } from './MissileSilo';
 import './style.css'
 
 
-class DefenderGameElements {
-    pauseButton: Element
-    resetButton: Element
+interface DefenderGameElements {
+    pauseButton?: Element
+    resetButton?: Element
+    score?: Element
+    level?: Element
 }
 
 class DefenderGame {
     world: Engine.World
-    viewPort: Engine.ViewPort
     canvas: HTMLCanvasElement
+    viewPort: Engine.ViewPort
     eventHandlers: {
         click: EventListenerOrEventListenerObject
         mousemove: EventListenerOrEventListenerObject
     }
     elements: DefenderGameElements
     tickCount: number
+    score: number
+    level: number
     status: "PLAY" | "PAUSE" | "GAMEOVER"
 
     constructor(canvas: HTMLCanvasElement, elements: DefenderGameElements) {
         this.canvas = canvas
-        this.world = createWorld()
-        this.viewPort = Engine.ViewPort.fitToSize(this.world, this.canvas, 750, 500)
-        this.tickCount = 0
+        this.elements = elements
         this.eventHandlers = {
             click: null,
             mousemove: null,
         };
         this.handleTick = this.handleTick.bind(this)
 
-        this.elements = elements
         if (this.elements.pauseButton) {
             this.elements.pauseButton.addEventListener('click', this.togglePause.bind(this))
         }
@@ -42,10 +43,18 @@ class DefenderGame {
             this.elements.resetButton.addEventListener('click', this.reset.bind(this))
         }
 
+        this.setToInitialState()
+    }
+
+    setToInitialState() {
+        this.world = createWorld()
+        this.viewPort = Engine.ViewPort.fitToSize(this.world, this.canvas, 750, 500)
+
         this.applyEventHandlers()
-
-
+        this.tickCount = 0
         this.status = "PLAY"
+        this.score = 0
+        this.level = 1
         this.world.ticksPerSecond = 50
     }
 
@@ -55,14 +64,7 @@ class DefenderGame {
         this.world.emitter.off('tick', this.handleTick)
         this.viewPort.unsetWorld()
 
-        this.world = createWorld()
-        this.viewPort.setWorld(this.world)
-        this.tickCount = 0
-
-        this.applyEventHandlers()
-
-        this.status = "PLAY"
-        this.world.ticksPerSecond = 50
+        this.setToInitialState()
     }
 
     applyEventHandlers() {
@@ -70,22 +72,20 @@ class DefenderGame {
             if (this.status !== 'PLAY') { return }
             const worldPoint = this.viewPort.locateClick(event, false)
             if (!worldPoint) { return }
-            this.fireNearestSilo(worldPoint, this.world)
+            this.fireNearestSilo(worldPoint)
         }
-        handleClick = handleClick.bind(this);
+        this.eventHandlers.click = handleClick.bind(this);
+        this.canvas.addEventListener('click', this.eventHandlers.click)
 
         let handleMousemove = function (event: PointerEvent) {
             if (this.status !== 'PLAY') { return }
             const worldPoint = this.viewPort.locateClick(event, false)
             if (!worldPoint) { return }
-            this.aimSilos(worldPoint, this.world)
+            this.aimSilos(worldPoint)
         }
-        handleMousemove = handleMousemove.bind(this);
-
-        this.eventHandlers.click = handleClick
-        this.eventHandlers.mousemove = handleMousemove
-        this.canvas.addEventListener('click', this.eventHandlers.click)
+        this.eventHandlers.mousemove = handleMousemove.bind(this);
         this.canvas.addEventListener('mousemove', this.eventHandlers.mousemove)
+
         this.world.emitter.on('tick', this.handleTick)
     }
 
@@ -98,13 +98,13 @@ class DefenderGame {
     }
 
     pause() {
-        if (this.status !== "PLAY") { return }
+        if (this.status !== "PLAY" ||  !this.world) { return }
         this.status = "PAUSE"
         this.world.ticksPerSecond = 0
     }
 
     unpause() {
-        if (this.status !== "PAUSE") { return }
+        if (this.status !== "PAUSE" || !this.world) { return }
         this.status = "PLAY"
         this.world.ticksPerSecond = 50
     }
@@ -114,6 +114,13 @@ class DefenderGame {
             this.addRandomBombs(Math.min(Math.floor(2 + this.tickCount / 400), 15))
         }
         this.tickCount++;
+
+        if (this.elements.score) {
+            this.elements.score.innerHTML = this.score.toPrecision(4)
+        }
+        if (this.elements.level) {
+            this.elements.level.innerHTML = this.level.toString()
+        }
     }
 
     aimSilos(target: Engine.Geometry.Point) {
@@ -156,9 +163,11 @@ class DefenderGame {
 
 const canvas = document.querySelector('canvas')
 
-const elements = {
+const elements: DefenderGameElements = {
     pauseButton: document.querySelector('#pauseButton'),
     resetButton: document.querySelector('#resetButton'),
+    score: document.querySelector('#score'),
+    level: document.querySelector('#level'),
 }
 
 
