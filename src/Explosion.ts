@@ -1,6 +1,7 @@
 import { AbstractGradientFill, Body, BodyData, Effect, EffectData, ExpandingRing, Geometry, Shape, shapes } from "../../worlds/src";
 import { ExpandingRingData } from "../../worlds/src/Effect";
 import { Bomb } from "./Bomb";
+import { Building } from "./Building";
 import { MissileSilo } from "./MissileSilo";
 
 
@@ -15,7 +16,7 @@ class ExplosionData implements ExpandingRingData {
 }
 
 class Explosion extends ExpandingRing {
-    isFromPlayer:boolean
+    isFromPlayer: boolean
 
     constructor(data: ExplosionData) {
         super(data)
@@ -38,13 +39,15 @@ class Explosion extends ExpandingRing {
                 }
             })
 
-        this.world.bodies
-            .filter(body => body.typeId == "MissileSilo")
-            .forEach(silo => {
-                if (Geometry.areCirclesIntersecting(this, silo.shapeValues)) {
-                    (silo as MissileSilo).data.isDestroyed = true;
+        if (!this.isFromPlayer) {
+            this.world.bodies
+            .filter(body => body.typeId == "MissileSilo" || body.typeId == "Building")
+            .forEach(siloOrBuilding => {
+                if (Geometry.areCirclesIntersecting(this, siloOrBuilding.shapeValues)) {
+                    (siloOrBuilding as MissileSilo | Building).data.isDestroyed = true;
                 }
             })
+        }
     }
 }
 
