@@ -50,6 +50,7 @@ const levels = [
         ],
         height: 3000,
         width: 4000,
+        gravity: .8,
         bombWaveFunction: function (tickCount: number) {
             if (tickCount % 200 == 0) {
                 return Math.min(Math.floor(2 + tickCount / 400), 15)
@@ -60,17 +61,38 @@ const levels = [
     new DefenderGameLevel({
         duration: 1000,
         contents: [
-            makeSiloOnGround(4 / 8, 2400, 4000),
-            makeBuildingOnGround(1 / 8, 100, 2400, 4000),
-            makeBuildingOnGround(3 / 8, 80, 2400, 4000),
-            makeBuildingOnGround(7.5 / 8, 100, 2400, 4000),
-            makeGround(2400, 4000, 'red')
+            makeSiloOnGround(4 / 8, 2800, 4000),
+            makeBuildingOnGround(1 / 8, 100, 2800, 4000),
+            makeBuildingOnGround(3 / 8, 80, 2800, 4000),
+            makeBuildingOnGround(7.5 / 8, 100, 2800, 4000),
+            makeGround(2800, 4000, 'red')
         ],
         height: 3000,
         width: 4000,
         bombWaveFunction: function (tickCount: number) {
             if (tickCount % 150 == 0) {
                 return Math.min(Math.floor(2.5 + tickCount / 400), 15)
+            }
+            return 0
+        }
+    }),
+    new DefenderGameLevel({
+        duration: 1200,
+        contents: [
+            makeSiloOnGround(2 / 8, 4700, 6000),
+            makeSiloOnGround(6 / 8, 4700, 6000),
+            makeBuildingOnGround(1 / 8, 100, 4700, 6000),
+            makeBuildingOnGround(3 / 8, 80, 4700, 6000),
+            makeBuildingOnGround(7.5 / 8, 100, 4700, 6000),
+            makeGround(4700, 6000, 'brown')
+        ],
+        height: 5000,
+        width: 6000,
+        airDensity: .01,
+        gravity:.5,
+        bombWaveFunction: function (tickCount: number) {
+            if (tickCount % 150 == 0) {
+                return Math.min(Math.floor(4 + tickCount / 300), 18)
             }
             return 0
         }
@@ -85,9 +107,9 @@ function createWorldFromLevel(level: DefenderGameLevel) {
         , {
             width: level.width,
             height: level.height,
-            globalGravityForce: new Engine.Force(.5, 0),
-            gravitationalConstant: .25,
-            airDensity: .1,
+            globalGravityForce: new Engine.Force(level.gravity, 0),
+            gravitationalConstant: .125,
+            airDensity: level.airDensity,
         })
 
 }
