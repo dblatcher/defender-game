@@ -11,6 +11,7 @@ const elements: DefenderGameElements = {
     resetButton: document.querySelector('#resetButton'),
     score: document.querySelector('#score'),
     level: document.querySelector('#level'),
+    caption: document.querySelector('#caption'),
 }
 
 

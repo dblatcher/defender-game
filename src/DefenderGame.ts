@@ -8,6 +8,7 @@ interface DefenderGameElements {
     resetButton?: Element
     score?: Element
     level?: Element
+    caption?: HTMLElement
 }
 
 class DefenderGame {
@@ -22,7 +23,7 @@ class DefenderGame {
     tickCount: number
     score: number
     levelNumber: number
-    status: "PLAY" | "PAUSE" | "GAMEOVER"
+    status: "PLAY" | "PAUSE" | "GAMEOVER" | "PRELEVEL"
 
     constructor(canvas: HTMLCanvasElement, elements: DefenderGameElements) {
         this.canvas = canvas
@@ -43,7 +44,7 @@ class DefenderGame {
 
         this.score = 0
         this.levelNumber = 1
-        this.startCurrentLevel()
+        this.setStatusPrelevel()
     }
 
     get currentLevel() {
@@ -64,25 +65,25 @@ class DefenderGame {
 
     reset() {
         this.removeEventHandlers()
-        this.viewPort.unsetWorld()
-
+        if (this.viewPort.world) { this.viewPort.unsetWorld() }
         this.score = 0
         this.levelNumber = 1
-        this.startCurrentLevel()
+        this.setStatusPrelevel()
     }
 
-    goToNextLevel() {
-        this.removeEventHandlers()
-        this.viewPort.unsetWorld()
-
-        if (this.levelNumber < levels.length) { this.levelNumber++ }
-        else { this.levelNumber = 1 }
-        this.startCurrentLevel()
-    }
-
-    startCurrentLevel() {
-        this.tickCount = 0
+    setStatusPlay() {
         this.status = "PLAY"
+        this.setCaption()
+    }
+
+    setStatusGameOver() {
+        this.status = "GAMEOVER"
+        this.setCaption("GAME OVER")
+    }
+
+    setStatusPrelevel() {
+        this.tickCount = -1
+
         this.world = createWorldFromLevel(this.currentLevel)
         this.viewPort = Engine.ViewPort.fitToSize(this.world, this.canvas, 750, 500)
 
@@ -92,14 +93,50 @@ class DefenderGame {
         if (this.elements.level) {
             this.elements.level.innerHTML = this.levelNumber.toString()
         }
+        this.status = "PRELEVEL"
+        this.setCaption(`
+        <p>Level ${this.levelNumber}</p> 
+        <p>Gravity ${this.currentLevel.gravity}g</p>
+        <p>Atmosphere ${this.currentLevel.airDensity}</p>
+        `)
     }
+
+    setStatusPause() {
+        if (this.status !== "PLAY" || !this.world) { return }
+        this.status = "PAUSE"
+        this.setCaption("paused")
+        this.world.ticksPerSecond = 0
+    }
+
+    unpauseGame() {
+        if (this.status !== "PAUSE" || !this.world) { return }
+        this.setStatusPlay()
+        this.world.ticksPerSecond = 50
+    }
+
+    goToNextLevel() {
+        if (this.levelNumber < levels.length) { this.levelNumber++ }
+        else { this.levelNumber = 1 }
+        this.removeEventHandlers()
+        if (this.viewPort.world) { this.viewPort.unsetWorld() }
+        this.setStatusPrelevel()
+
+    }
+
+
 
     applyEventHandlers() {
         let handleClick = function (event: PointerEvent) {
-            if (this.status !== 'PLAY') { return }
-            const worldPoint = this.viewPort.locateClick(event, false)
+            const game = this as DefenderGame
+            const worldPoint = game.viewPort.locateClick(event, false)
             if (!worldPoint) { return }
-            this.fireNearestSilo(worldPoint)
+
+            switch (game.status) {
+                case 'PLAY': return game.fireNearestSilo(worldPoint);
+                case 'PAUSE': return game.unpauseGame();
+                case 'GAMEOVER': return game.reset();
+                case 'PRELEVEL': return game.setStatusPlay();
+            }
         }
         this.eventHandlers.click = handleClick.bind(this);
         this.canvas.addEventListener('click', this.eventHandlers.click)
@@ -126,23 +163,13 @@ class DefenderGame {
 
     togglePause() {
         if (this.status == "PAUSE") {
-            this.unpause()
+            this.unpauseGame()
         } else if (this.status == "PLAY") {
-            this.pause()
+            this.setStatusPause()
         }
     }
 
-    pause() {
-        if (this.status !== "PLAY" || !this.world) { return }
-        this.status = "PAUSE"
-        this.world.ticksPerSecond = 0
-    }
 
-    unpause() {
-        if (this.status !== "PAUSE" || !this.world) { return }
-        this.status = "PLAY"
-        this.world.ticksPerSecond = 50
-    }
 
     renderScore() {
         if (this.elements.score) {
@@ -162,22 +189,30 @@ class DefenderGame {
         this.renderScore()
     }
 
+    setCaption(content: string = "") {
+        if (!this.elements.caption) { return }
+        this.elements.caption.innerHTML = content;
+        this.elements.caption.style.display = !content ? "none" : "";
+    }
+
     handleTick() {
 
-        if (this.tickCount <= this.currentLevel.duration) {
+        if (this.tickCount <= this.currentLevel.duration && this.tickCount >= 0) {
             const bombsToAdd = this.currentLevel.bombWaveFunction(this.tickCount)
             this.addRandomBombs(bombsToAdd)
         }
 
         if (this.playerHasLost && this.status == "PLAY") {
-            this.status = "GAMEOVER"
+            this.setStatusGameOver()
         }
 
         if (this.currentLevelIsFinished && !this.playerHasLost) {
             return this.goToNextLevel()
         }
 
-        this.tickCount++;
+        if (this.status == "PLAY") {
+            this.tickCount++;
+        }
     }
 
     aimSilos(target: Engine.Geometry.Point) {
