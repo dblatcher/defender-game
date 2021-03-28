@@ -41,7 +41,9 @@ class DefenderGame {
             this.elements.resetButton.addEventListener('click', this.reset.bind(this))
         }
 
-        this.setToInitialState()
+        this.score = 0
+        this.levelNumber = 1
+        this.startCurrentLevel()
     }
 
     get currentLevel() {
@@ -54,50 +56,42 @@ class DefenderGame {
         return this.status === "PLAY" && !areBombs && this.tickCount > this.currentLevel.duration
     }
 
-    setToInitialState() {
-        this.tickCount = 0
-        this.status = "PLAY"
-        this.score = 0
-        this.levelNumber = 1
-        this.world = createWorldFromLevel(this.currentLevel)
-        this.viewPort = Engine.ViewPort.fitToSize(this.world, this.canvas, 750, 500)
-
-        this.applyEventHandlers()
-        this.world.ticksPerSecond = 50
-        this.renderScore()
+    get playerHasLost() {
+        if (!this.world) { return false }
+        const areWorkingSilos = this.world.bodies.find(body => body.typeId === "MissileSilo" && !(body as MissileSilo).data.isDestroyed)
+        return this.status === "PLAY" && !areWorkingSilos
     }
 
     reset() {
-        this.canvas.removeEventListener('click', this.eventHandlers.click)
-        this.canvas.removeEventListener('mousemove', this.eventHandlers.mousemove)
-        this.world.emitter.off('tick', this.handleTick)
-        this.world.emitter.off('points', this.handlePoints)
+        this.removeEventHandlers()
         this.viewPort.unsetWorld()
 
-        this.setToInitialState()
+        this.score = 0
+        this.levelNumber = 1
+        this.startCurrentLevel()
     }
 
     goToNextLevel() {
-        this.canvas.removeEventListener('click', this.eventHandlers.click)
-        this.canvas.removeEventListener('mousemove', this.eventHandlers.mousemove)
-        this.world.emitter.off('tick', this.handleTick)
-        this.world.emitter.off('points', this.handlePoints)
+        this.removeEventHandlers()
         this.viewPort.unsetWorld()
 
+        if (this.levelNumber < levels.length) { this.levelNumber++ }
+        else { this.levelNumber = 1 }
+        this.startCurrentLevel()
+    }
 
+    startCurrentLevel() {
         this.tickCount = 0
         this.status = "PLAY"
-
-        if (this.levelNumber < levels.length) {
-            this.levelNumber++
-        }
-
         this.world = createWorldFromLevel(this.currentLevel)
         this.viewPort = Engine.ViewPort.fitToSize(this.world, this.canvas, 750, 500)
 
         this.applyEventHandlers()
         this.world.ticksPerSecond = 50
         this.renderScore()
+        if (this.elements.level) {
+            this.elements.level.innerHTML = this.levelNumber.toString()
+        }
     }
 
     applyEventHandlers() {
@@ -121,6 +115,13 @@ class DefenderGame {
 
         this.world.emitter.on('tick', this.handleTick)
         this.world.emitter.on('points', this.handlePoints)
+    }
+
+    removeEventHandlers() {
+        this.canvas.removeEventListener('click', this.eventHandlers.click)
+        this.canvas.removeEventListener('mousemove', this.eventHandlers.mousemove)
+        this.world.emitter.off('tick', this.handleTick)
+        this.world.emitter.off('points', this.handlePoints)
     }
 
     togglePause() {
@@ -168,15 +169,15 @@ class DefenderGame {
             this.addRandomBombs(bombsToAdd)
         }
 
-        if (this.currentLevelIsFinished) {
+        if (this.playerHasLost && this.status == "PLAY") {
+            this.status = "GAMEOVER"
+        }
+
+        if (this.currentLevelIsFinished && !this.playerHasLost) {
             return this.goToNextLevel()
         }
 
         this.tickCount++;
-
-        if (this.elements.level) {
-            this.elements.level.innerHTML = this.levelNumber.toString()
-        }
     }
 
     aimSilos(target: Engine.Geometry.Point) {
