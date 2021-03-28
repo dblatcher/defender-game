@@ -2,7 +2,7 @@ import { CollisionDetection, Body } from "../../worlds/src";
 import { Explosion } from "./Explosion";
 import { Missile } from "./Missle";
 
-
+import { redExplosionGradient, blueExplosionGradient } from './gradients'
 
 class Bomb extends Body {
 
@@ -31,6 +31,7 @@ class Bomb extends Body {
             size: 150,
             duration: 15,
             color: explosionIsFromPlayer ? "red" : "darkorange",
+            fillColor: explosionIsFromPlayer ? redExplosionGradient : blueExplosionGradient,
             isFromPlayer: explosionIsFromPlayer
         }).enterWorld(this.world)
     }

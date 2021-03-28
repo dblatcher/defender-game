@@ -1,6 +1,7 @@
 import { Body, Force, BodyData, Shape, Geometry, RenderFunctions, CollisionDetection, ViewPort, ExpandingRing } from '../../worlds/src/index'
 import { Bomb } from './Bomb'
 import { Explosion } from './Explosion'
+import { redExplosionGradient } from './gradients'
 
 const { getVectorX, getVectorY, reverseHeading } = Geometry
 
@@ -114,6 +115,7 @@ class Missile extends Body {
             duration: explosionDuration,
             size: explosionSize,
             color: 'red',
+            fillColor: redExplosionGradient,
             isFromPlayer: true,
         }).enterWorld(this.world)
     }
