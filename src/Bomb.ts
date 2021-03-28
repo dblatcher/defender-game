@@ -39,6 +39,14 @@ class Bomb extends Body {
         if (!this.world) { return }
         this.world.emitter.emit('points', 10)
     }
+
+    move() {
+        Body.prototype.move.apply(this, [])
+
+        if (this.data.y > this.world.height + 200) {
+            this.leaveWorld()
+        }
+    }
 }
 
 export { Bomb }
