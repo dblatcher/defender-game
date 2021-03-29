@@ -42,7 +42,7 @@ class Explosion extends ExpandingRing {
                     (body as Bomb).explode(this.isFromPlayer);
 
                     if (this.isFromPlayer) {
-                        (body as Bomb).reportPoints();
+                        (body as Bomb).reportPoints(10);
                     }
                 }
             })

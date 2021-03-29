@@ -1,13 +1,18 @@
-import { CollisionDetection, Body } from "../../worlds/src";
+import { CollisionDetection, Body, RenderFunctions, ViewPort, Geometry, BodyData, Force } from "../../worlds/src";
 import { Explosion } from "./Explosion";
 import { Missile } from "./Missle";
 
 import { redExplosionGradient, blueExplosionGradient } from './gradients'
+import { getXYVector, reverseHeading, translatePoint } from "../../worlds/src/geometry";
 
 class Bomb extends Body {
 
     get typeId() { return "Bomb" }
 
+    constructor(data: BodyData, force: Force = null) {
+        super(data, force)
+        this.data.headingFollowsDirection = true
+    }
 
     handleCollision(report: CollisionDetection.CollisionReport) {
         const otherThing = report.item1 === this ? report.item2 : report.item1
@@ -16,7 +21,7 @@ class Bomb extends Body {
 
             if (otherThing.typeId === 'Missile') {
                 (otherThing as Missile).explode;
-                this.reportPoints()
+                this.reportPoints(10)
             }
         } else {
             Body.prototype.handleCollision(report)
@@ -36,9 +41,9 @@ class Bomb extends Body {
         }).enterWorld(this.world)
     }
 
-    reportPoints() {
+    reportPoints(quantity: number) {
         if (!this.world) { return }
-        this.world.emitter.emit('points', 10)
+        this.world.emitter.emit('points', quantity)
     }
 
     move() {
@@ -47,6 +52,28 @@ class Bomb extends Body {
         if (this.data.y > this.world.height + 200) {
             this.leaveWorld()
         }
+    }
+
+    renderOnCanvas(ctx: CanvasRenderingContext2D, viewPort: ViewPort) {
+
+        const { shapeValues } = this
+        const { heading, size } = this.data
+
+        RenderFunctions.renderCircle.onCanvas(ctx, shapeValues, {
+            fillColor: 'crimson',
+            strokeColor: 'white'
+        }, viewPort);
+
+        const midLeft = translatePoint(shapeValues, getXYVector(size, heading + Geometry._90deg));
+        const backLeft = translatePoint(midLeft, getXYVector(size, reverseHeading(heading)));
+        const midRight = translatePoint(shapeValues, getXYVector(size, heading - Geometry._90deg));
+        const backRight = translatePoint(midRight, getXYVector(size, reverseHeading(heading)));
+
+        RenderFunctions.renderPolygon.onCanvas(ctx, [midLeft, backLeft, backRight, midRight], {
+            fillColor: 'gray',
+            strokeColor: 'white'
+        }, viewPort)
+
     }
 }
 
