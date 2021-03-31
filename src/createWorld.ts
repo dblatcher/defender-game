@@ -2,7 +2,17 @@ import * as Engine from '../../worlds/src/index'
 import { Building } from './Building'
 import { MissileSilo } from './MissileSilo'
 import { DefenderGameLevel } from './DefenderGameLevel'
+import { makeSkyBackground } from './gradients'
 
+const blueSky = makeSkyBackground([[.2, 'black'], [.8, 'skyblue']])
+const purpleSky = makeSkyBackground([[.2, 'black'], [.9, 'purple']])
+
+const stars = new Engine.StarField({
+    numberOfStars: 50,
+    depth: 1,
+    height: 600,
+    width: 6000,
+})
 
 const siloSize = 150
 
@@ -48,6 +58,7 @@ const levels = [
             makeBuildingOnGround(7.5 / 8, 100, 2900, 4000),
             makeGround(2900, 4000, 'green')
         ],
+        backgrounds: [blueSky, stars],
         height: 3000,
         width: 4000,
         gravity: .8,
@@ -67,6 +78,7 @@ const levels = [
             makeBuildingOnGround(7.5 / 8, 100, 2800, 4000),
             makeGround(2800, 4000, 'red')
         ],
+        backgrounds: [purpleSky],
         height: 3000,
         width: 4000,
         bombWaveFunction: function (tickCount: number) {
@@ -89,7 +101,8 @@ const levels = [
         height: 5000,
         width: 6000,
         airDensity: .01,
-        gravity:.5,
+        gravity: .5,
+        backgrounds:[stars],
         bombWaveFunction: function (tickCount: number) {
             if (tickCount % 150 == 0) {
                 return Math.min(Math.floor(4 + tickCount / 300), 18)
@@ -110,6 +123,7 @@ function createWorldFromLevel(level: DefenderGameLevel) {
             globalGravityForce: new Engine.Force(level.gravity, 0),
             gravitationalConstant: .125,
             airDensity: level.airDensity,
+            backGrounds: level.backgrounds,
         })
 
 }

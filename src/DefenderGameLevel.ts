@@ -12,6 +12,7 @@ class DefenderGameLevel {
     gravity:number
     airDensity:number
     bombWaveFunction: BombWaveFunction
+    backgrounds: Engine.BackGround[]
 
     constructor(data: {
         duration: number
@@ -21,6 +22,7 @@ class DefenderGameLevel {
         gravity?: number
         airDensity?: number
         bombWaveFunction: BombWaveFunction
+        backgrounds?: Engine.BackGround[]
     }) {
         this.duration = data.duration
         this.contents = data.contents;
@@ -29,6 +31,7 @@ class DefenderGameLevel {
         this.gravity = data.gravity || 1
         this.airDensity = data.airDensity || .1
         this.bombWaveFunction = data.bombWaveFunction;
+        this.backgrounds = data.backgrounds || []
     }
 }
 
