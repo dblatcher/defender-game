@@ -27,6 +27,7 @@ main nav p {
 main figure {
     width: 100%;
     height: 100%;
+    margin: 0;
     max-height: 95vh;
     display: flex;
     justify-content: center;
@@ -43,16 +44,21 @@ main figure canvas {
 }
 
 main figure figcaption {
+    pointer-events: none;
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
 
-    pointer-events: none;
-
-    color: white;
-    background: red;
+    border: 3px double white;
+    border-radius: 2em;
     padding: 1em;
-    border-radius: 50%;
+    
+    color: white;
+    background: black;
+}
+
+main figure figcaption p {
+    margin: 0;
 }
 

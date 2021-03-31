@@ -75,8 +75,8 @@ class MissileSilo extends Body {
                 y: barrel[1].y,
                 radius: radius * (1 / 8)
             }
-            RenderFunctions.renderLine.onCanvas(ctx, barrel, { strokeColor: "white", lineWidth: 4 }, viewPort)
-            RenderFunctions.renderCircle.onCanvas(ctx, breach, { strokeColor: "white" }, viewPort)
+            RenderFunctions.renderLine.onCanvas(ctx, barrel, { strokeColor: data.color, lineWidth: 4 }, viewPort)
+            RenderFunctions.renderCircle.onCanvas(ctx, breach, { strokeColor: data.color }, viewPort)
         }
 
         RenderFunctions.renderPolygon.onCanvas(ctx, base, { strokeColor: data.color, fillColor: data.fillColor }, viewPort)

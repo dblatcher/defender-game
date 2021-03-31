@@ -59,20 +59,35 @@ class Bomb extends Body {
         const { shapeValues } = this
         const { heading, size } = this.data
 
+        const tailWidth = size * (6/10)
+        const tailLength = size * (20/10)
+
+        const left = translatePoint(shapeValues, getXYVector(size, heading + Geometry._90deg));
+        const right = translatePoint(shapeValues, getXYVector(size, heading - Geometry._90deg));
+
+        const mid = translatePoint(shapeValues, getXYVector(size+tailWidth, reverseHeading(heading)));
+
+        const midLeft = translatePoint(shapeValues, getXYVector(tailWidth/2, heading + Geometry._90deg));
+        const backLeft = translatePoint(translatePoint(midLeft, getXYVector(tailLength, reverseHeading(heading))), getXYVector(tailWidth, heading + Geometry._90deg));
+        const midRight = translatePoint(shapeValues, getXYVector(tailWidth/2, heading - Geometry._90deg));
+        const backRight = translatePoint( translatePoint(midRight, getXYVector(tailLength, reverseHeading(heading))), getXYVector(tailWidth, heading - Geometry._90deg));
+
+        RenderFunctions.renderPolygon.onCanvas(ctx, [midLeft, backLeft,mid, backRight, midRight], {
+            fillColor: 'gray',
+            strokeColor: 'white'
+        }, viewPort)
         RenderFunctions.renderCircle.onCanvas(ctx, shapeValues, {
             fillColor: 'crimson',
             strokeColor: 'white'
         }, viewPort);
 
-        const midLeft = translatePoint(shapeValues, getXYVector(size, heading + Geometry._90deg));
-        const backLeft = translatePoint(midLeft, getXYVector(size, reverseHeading(heading)));
-        const midRight = translatePoint(shapeValues, getXYVector(size, heading - Geometry._90deg));
-        const backRight = translatePoint(midRight, getXYVector(size, reverseHeading(heading)));
+        RenderFunctions.renderLine.onCanvas(ctx, [left,right], {
+            fillColor: 'crimson',
+            strokeColor: 'white',
+            lineWidth:2,
+            lineDash:[1,1],
+        }, viewPort);
 
-        RenderFunctions.renderPolygon.onCanvas(ctx, [midLeft, backLeft, backRight, midRight], {
-            fillColor: 'gray',
-            strokeColor: 'white'
-        }, viewPort)
 
     }
 }
