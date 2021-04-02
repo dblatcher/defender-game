@@ -15,10 +15,6 @@ class DefenderGame {
     world: Engine.World
     canvas: HTMLCanvasElement
     viewPort: Engine.ViewPort
-    eventHandlers: {
-        click: EventListenerOrEventListenerObject
-        mousemove: EventListenerOrEventListenerObject
-    }
     frameFill?: string
     elements: DefenderGameElements
     tickCount: number
@@ -29,10 +25,8 @@ class DefenderGame {
     constructor(canvas: HTMLCanvasElement, elements: DefenderGameElements, config: { frameFill?: string } = {}) {
         this.canvas = canvas
         this.elements = elements
-        this.eventHandlers = {
-            click: null,
-            mousemove: null,
-        };
+        this.handleClick = this.handleClick.bind(this)
+        this.handleMousemove = this.handleMousemove.bind(this)
         this.handleTick = this.handleTick.bind(this)
         this.handlePoints = this.handlePoints.bind(this)
 
@@ -126,40 +120,17 @@ class DefenderGame {
 
     }
 
-
-
     applyEventHandlers() {
-        let handleClick = function (event: PointerEvent) {
-            const game = this as DefenderGame
-            const worldPoint = game.viewPort.locateClick(event, false)
-            if (!worldPoint) { return }
-
-            switch (game.status) {
-                case 'PLAY': return game.fireNearestSilo(worldPoint);
-                case 'PAUSE': return game.unpauseGame();
-                case 'GAMEOVER': return game.reset();
-                case 'PRELEVEL': return game.setStatusPlay();
-            }
-        }
-        this.eventHandlers.click = handleClick.bind(this);
-        this.canvas.addEventListener('click', this.eventHandlers.click)
-
-        let handleMousemove = function (event: PointerEvent) {
-            if (this.status !== 'PLAY') { return }
-            const worldPoint = this.viewPort.locateClick(event, false)
-            if (!worldPoint) { return }
-            this.aimSilos(worldPoint)
-        }
-        this.eventHandlers.mousemove = handleMousemove.bind(this);
-        this.canvas.addEventListener('mousemove', this.eventHandlers.mousemove)
+        this.canvas.addEventListener('click', this.handleClick)
+        this.canvas.addEventListener('mousemove', this.handleMousemove)
 
         this.world.emitter.on('tick', this.handleTick)
         this.world.emitter.on('points', this.handlePoints)
     }
 
     removeEventHandlers() {
-        this.canvas.removeEventListener('click', this.eventHandlers.click)
-        this.canvas.removeEventListener('mousemove', this.eventHandlers.mousemove)
+        this.canvas.removeEventListener('click', this.handleClick)
+        this.canvas.removeEventListener('mousemove', this.handleMousemove)
         this.world.emitter.off('tick', this.handleTick)
         this.world.emitter.off('points', this.handlePoints)
     }
@@ -171,7 +142,6 @@ class DefenderGame {
             this.setStatusPause()
         }
     }
-
 
 
     renderScore() {
@@ -190,6 +160,25 @@ class DefenderGame {
     handlePoints(points: number) {
         this.score += points
         this.renderScore()
+    }
+
+    handleClick(event: PointerEvent) {
+        const worldPoint = this.viewPort.locateClick(event, false)
+        if (!worldPoint) { return }
+
+        switch (this.status) {
+            case 'PLAY': return this.fireNearestSilo(worldPoint);
+            case 'PAUSE': return this.unpauseGame();
+            case 'GAMEOVER': return this.reset();
+            case 'PRELEVEL': return this.setStatusPlay();
+        }
+    }
+
+    handleMousemove(event: PointerEvent) {
+        if (this.status !== 'PLAY') { return }
+        const worldPoint = this.viewPort.locateClick(event, false)
+        if (!worldPoint) { return }
+        this.aimSilos(worldPoint)
     }
 
     setCaption(content: string = "") {
