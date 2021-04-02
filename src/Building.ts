@@ -34,6 +34,8 @@ class Building extends (Body) {
 
     get typeId() { return "Building" }
 
+    get scoreValue() {return 100}
+
     get ruinPolygon(): Geometry.Point[] {
         const { top, left, radius } = this.shapeValues;
         return Building.ruinPatterns[this.data.ruinPatterIndex]

@@ -28,6 +28,8 @@ class Explosion extends ExpandingRing {
         this.fillColor = data.fillColor || "transparent"
     }
 
+    get typeId() { return "Explosion" }
+
     renderOnCanvas(ctx: CanvasRenderingContext2D, viewPort: ViewPort) {
         RenderFunctions.renderCircle.onCanvas(ctx, this, { strokeColor: this.color, fillColor: this.fillColor }, viewPort)
     }

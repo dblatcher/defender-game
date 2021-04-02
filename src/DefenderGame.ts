@@ -1,5 +1,6 @@
 import * as Engine from '../../worlds/src/index'
 import { Bomb } from './Bomb';
+import { Building } from './Building';
 import { createWorldFromLevel, levels } from './createWorld';
 import { MissileSilo } from './MissileSilo';
 
@@ -20,7 +21,7 @@ class DefenderGame {
     tickCount: number
     score: number
     levelNumber: number
-    status: "PLAY" | "PAUSE" | "GAMEOVER" | "PRELEVEL"
+    status: "PLAY" | "PAUSE" | "GAMEOVER" | "PRELEVEL" | "POSTLEVEL"
 
     constructor(canvas: HTMLCanvasElement, elements: DefenderGameElements, config: { frameFill?: string } = {}) {
         this.canvas = canvas
@@ -49,8 +50,10 @@ class DefenderGame {
 
     get currentLevelIsFinished() {
         if (!this.world) { return false }
-        const areBombs = this.world.bodies.find(body => body.typeId === "Bomb")
-        return this.status === "PLAY" && !areBombs && this.tickCount > this.currentLevel.duration
+        const areBombs = this.world.bodies.find(body => body.typeId === "Bomb");
+        const areExplosions = this.world.effects.find(effect => effect.typeId === "Explosion");
+
+        return this.status === "PLAY" && !areBombs && !areExplosions && this.tickCount > this.currentLevel.duration
     }
 
     get playerHasLost() {
@@ -75,6 +78,23 @@ class DefenderGame {
     setStatusGameOver() {
         this.status = "GAMEOVER"
         this.setCaption("GAME OVER")
+    }
+
+    setStatusPostlevel() {
+
+        const survivingBuildings = this.world.bodies.filter(
+            body => body.typeId === "Building" && (body as Building).data.isDestroyed === false
+        ) as Building[];
+
+        const buildingScore = survivingBuildings.reduce((score, building) => { return score + building.scoreValue }, 0)
+        this.handlePoints(buildingScore)
+
+        this.status = "POSTLEVEL"
+        this.setCaption(`
+        <p>Level ${this.levelNumber} cleared</p> 
+        <p>${survivingBuildings.length}x buildings left: ${buildingScore} points</p> 
+        <p></p>
+        `)
     }
 
     setStatusPrelevel() {
@@ -171,6 +191,7 @@ class DefenderGame {
             case 'PAUSE': return this.unpauseGame();
             case 'GAMEOVER': return this.reset();
             case 'PRELEVEL': return this.setStatusPlay();
+            case 'POSTLEVEL': return this.goToNextLevel();
         }
     }
 
@@ -198,8 +219,8 @@ class DefenderGame {
             this.setStatusGameOver()
         }
 
-        if (this.currentLevelIsFinished && !this.playerHasLost) {
-            return this.goToNextLevel()
+        if (this.currentLevelIsFinished && !this.playerHasLost && this.status == "PLAY") {
+            return this.setStatusPostlevel()
         }
 
         if (this.status == "PLAY") {
@@ -216,6 +237,11 @@ class DefenderGame {
     }
 
     fireNearestSilo(target: Engine.Geometry.Point) {
+
+        // don't let player keep firing after the bombs are gone - the explosions stop the level from being over
+        const areBombs = this.world.bodies.find(body => body.typeId === "Bomb");
+        if (!areBombs && this.tickCount > this.currentLevel.duration) { return }
+
         const closestSilo = this.world.bodies
             .filter(body => body.typeId === "MissileSilo")
             .filter((silo) => !(silo as MissileSilo).data.isDestroyed)

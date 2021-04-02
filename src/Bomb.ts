@@ -14,6 +14,8 @@ class Bomb extends Body {
         this.data.headingFollowsDirection = true
     }
 
+    get scoreValue() {return 10}
+
     handleCollision(report: CollisionDetection.CollisionReport) {
         const otherThing = report.item1 === this ? report.item2 : report.item1
         if (otherThing.typeId !== 'Bomb') {
@@ -21,7 +23,7 @@ class Bomb extends Body {
 
             if (otherThing.typeId === 'Missile') {
                 (otherThing as Missile).explode;
-                this.reportPoints(10)
+                this.reportPoints(this.scoreValue)
             }
         } else {
             Body.prototype.handleCollision(report)
