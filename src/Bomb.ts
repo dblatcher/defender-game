@@ -3,7 +3,7 @@ import { Explosion } from "./Explosion";
 import { Missile } from "./Missle";
 
 import { redExplosionGradient, blueExplosionGradient } from './gradients'
-import { getXYVector, reverseHeading, translatePoint } from "../../worlds/src/geometry";
+import { getXYVector, reverseHeading, translatePoint, _90deg } from "../../worlds/src/geometry";
 
 class Bomb extends Body {
 
@@ -62,9 +62,6 @@ class Bomb extends Body {
         const tailWidth = size * (6/10)
         const tailLength = size * (20/10)
 
-        const left = translatePoint(shapeValues, getXYVector(size, heading + Geometry._90deg));
-        const right = translatePoint(shapeValues, getXYVector(size, heading - Geometry._90deg));
-
         const mid = translatePoint(shapeValues, getXYVector(size+tailWidth, reverseHeading(heading)));
 
         const midLeft = translatePoint(shapeValues, getXYVector(tailWidth/2, heading + Geometry._90deg));
@@ -76,19 +73,14 @@ class Bomb extends Body {
             fillColor: 'gray',
             strokeColor: 'white'
         }, viewPort)
-        RenderFunctions.renderCircle.onCanvas(ctx, shapeValues, {
+        RenderFunctions.renderWedge.onCanvas(ctx, Object.assign({heading, angle:_90deg*2},shapeValues), {
             fillColor: 'crimson',
             strokeColor: 'white'
         }, viewPort);
-
-        RenderFunctions.renderLine.onCanvas(ctx, [left,right], {
-            fillColor: 'crimson',
-            strokeColor: 'white',
-            lineWidth:2,
-            lineDash:[1,1],
+        RenderFunctions.renderWedge.onCanvas(ctx, Object.assign({heading:reverseHeading(heading), angle:_90deg*2},shapeValues), {
+            fillColor: 'gray',
+            strokeColor: 'white'
         }, viewPort);
-
-
     }
 }
 
