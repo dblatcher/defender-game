@@ -7,11 +7,20 @@ import { makeSkyBackground } from './gradients'
 const blueSky = makeSkyBackground([[.2, 'black'], [.8, 'skyblue']])
 const purpleSky = makeSkyBackground([[.2, 'black'], [.9, 'purple']])
 
+const yellowSky = makeSkyBackground([[.1, 'black'], [.5, 'darkgoldenrod'], [.8,'darkgoldenrod'], [.9,'skyblue']])
+
 const stars = new Engine.StarField({
     numberOfStars: 50,
     depth: 1,
     height: 600,
     width: 6000,
+})
+
+const sparceStars = new Engine.StarField({
+    numberOfStars: 25,
+    depth: 1,
+    height: 800,
+    width: 7000,
 })
 
 const siloSize = 150
@@ -51,10 +60,10 @@ const levels = [
     new DefenderGameLevel({
         duration: 600,
         contents: [
-            makeSiloOnGround(2 / 8, 2900, 4000),
-            makeSiloOnGround(6 / 8, 2900, 4000),
             makeBuildingOnGround(1 / 8, 100, 2900, 4000),
+            makeSiloOnGround(2 / 8, 2900, 4000),
             makeBuildingOnGround(3 / 8, 80, 2900, 4000),
+            makeSiloOnGround(6 / 8, 2900, 4000),
             makeBuildingOnGround(7.5 / 8, 100, 2900, 4000),
             makeGround(2900, 4000, 'green')
         ],
@@ -91,10 +100,11 @@ const levels = [
     new DefenderGameLevel({
         duration: 1200,
         contents: [
-            makeSiloOnGround(2 / 8, 4700, 6000),
-            makeSiloOnGround(6 / 8, 4700, 6000),
             makeBuildingOnGround(1 / 8, 100, 4700, 6000),
+            makeSiloOnGround(2 / 8, 4700, 6000),
             makeBuildingOnGround(3 / 8, 80, 4700, 6000),
+            makeBuildingOnGround(5 / 8, 80, 4700, 6000),
+            makeSiloOnGround(6 / 8, 4700, 6000),
             makeBuildingOnGround(7.5 / 8, 100, 4700, 6000),
             makeGround(4700, 6000, 'brown')
         ],
@@ -106,6 +116,31 @@ const levels = [
         bombWaveFunction: function (tickCount: number) {
             if (tickCount % 150 == 0) {
                 return Math.min(Math.floor(4 + tickCount / 300), 18)
+            }
+            return 0
+        }
+    }),
+    new DefenderGameLevel({
+        duration: 1500,
+        contents: [
+            makeBuildingOnGround(.5 / 8, 100, 4700, 7000),
+            makeBuildingOnGround(1 / 8, 100, 4700, 7000),
+            makeSiloOnGround(2 / 8, 4700, 7000),
+            makeBuildingOnGround(3 / 8, 80, 4700, 7000),
+            makeBuildingOnGround(4.5 / 8, 110, 4700, 7000),
+            makeBuildingOnGround(5 / 8, 80, 4700, 7000),
+            makeSiloOnGround(6 / 8, 4700, 7000),
+            makeBuildingOnGround(7.5 / 8, 100, 4700, 7000),
+            makeGround(4700, 7000, 'black')
+        ],
+        height: 5000,
+        width: 7000,
+        airDensity: .02,
+        gravity: .4,
+        backgrounds:[yellowSky, sparceStars],
+        bombWaveFunction: function (tickCount: number) {
+            if (tickCount % 100 == 0) {
+                return Math.min(Math.floor(3 + tickCount / 200), 18)
             }
             return 0
         }

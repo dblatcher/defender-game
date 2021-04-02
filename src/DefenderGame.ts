@@ -59,7 +59,9 @@ class DefenderGame {
     get playerHasLost() {
         if (!this.world) { return false }
         const areWorkingSilos = this.world.bodies.find(body => body.typeId === "MissileSilo" && !(body as MissileSilo).data.isDestroyed)
-        return this.status === "PLAY" && !areWorkingSilos
+        const areSurvivingBuildings = this.world.bodies.find(body => body.typeId === "Building" && !(body as Building).data.isDestroyed)
+
+        return this.status === "PLAY" && (!areWorkingSilos || !areSurvivingBuildings)
     }
 
     reset() {
