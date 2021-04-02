@@ -1,5 +1,5 @@
 
-import {DefenderGame, DefenderGameElements} from './DefenderGame'
+import { DefenderGame, DefenderGameElements } from './DefenderGame'
 
 import './style.css'
 
@@ -16,4 +16,4 @@ const elements: DefenderGameElements = {
 
 
 const globalContext = window as any;
-globalContext.game = new DefenderGame(canvas, elements);
+globalContext.game = new DefenderGame(canvas, elements, { frameFill: 'antiquewhite' });

@@ -19,13 +19,14 @@ class DefenderGame {
         click: EventListenerOrEventListenerObject
         mousemove: EventListenerOrEventListenerObject
     }
+    frameFill?: string
     elements: DefenderGameElements
     tickCount: number
     score: number
     levelNumber: number
     status: "PLAY" | "PAUSE" | "GAMEOVER" | "PRELEVEL"
 
-    constructor(canvas: HTMLCanvasElement, elements: DefenderGameElements) {
+    constructor(canvas: HTMLCanvasElement, elements: DefenderGameElements, config: { frameFill?: string } = {}) {
         this.canvas = canvas
         this.elements = elements
         this.eventHandlers = {
@@ -35,6 +36,7 @@ class DefenderGame {
         this.handleTick = this.handleTick.bind(this)
         this.handlePoints = this.handlePoints.bind(this)
 
+        this.frameFill = config.frameFill || 'white'
         if (this.elements.pauseButton) {
             this.elements.pauseButton.addEventListener('click', this.togglePause.bind(this))
         }
@@ -86,6 +88,7 @@ class DefenderGame {
 
         this.world = createWorldFromLevel(this.currentLevel)
         this.viewPort = Engine.ViewPort.fitToSize(this.world, this.canvas, 750, 500)
+        this.viewPort.framefill = this.frameFill
 
         this.applyEventHandlers()
         this.world.ticksPerSecond = 50
