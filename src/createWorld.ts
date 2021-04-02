@@ -35,6 +35,27 @@ function makeSiloOnGround(relativeX: number, groundLevel: number, worldWidth: nu
     })
 }
 
+function makeSiloAndPlatform(relativeX: number, groundLevel: number, worldWidth: number, platformSize:number) {
+    const silo =  new MissileSilo({
+        fillColor: 'blue', color: 'red',
+        x: worldWidth * relativeX,
+        y: groundLevel - (siloSize * (.25)) - (platformSize*2),
+        size: Math.min(siloSize,platformSize),
+        heading: Math.PI
+    })
+
+    const platform = new Engine.Body ({
+        shape: Engine.shapes.square,
+        x: worldWidth * relativeX,
+        y: groundLevel - platformSize,
+        size: platformSize,
+        immobile:true,
+        fillColor: 'blue', color: 'red',
+    })
+
+    return [silo,platform]
+}
+
 function makeBuildingOnGround(relativeX: number, size: number, groundLevel: number, worldWidth: number) {
     return new Building({
         size,
@@ -61,7 +82,7 @@ const levels = [
         duration: 600,
         contents: [
             makeBuildingOnGround(1 / 8, 100, 2900, 4000),
-            makeSiloOnGround(2 / 8, 2900, 4000),
+            ...makeSiloAndPlatform(2 / 8, 2900, 4000,100),
             makeBuildingOnGround(3 / 8, 80, 2900, 4000),
             makeSiloOnGround(6 / 8, 2900, 4000),
             makeBuildingOnGround(7.5 / 8, 100, 2900, 4000),
@@ -101,10 +122,10 @@ const levels = [
         duration: 1200,
         contents: [
             makeBuildingOnGround(1 / 8, 100, 4700, 6000),
-            makeSiloOnGround(2 / 8, 4700, 6000),
+            ...makeSiloAndPlatform(2 / 8, 4700, 6000,180),
             makeBuildingOnGround(3 / 8, 80, 4700, 6000),
             makeBuildingOnGround(5 / 8, 80, 4700, 6000),
-            makeSiloOnGround(6 / 8, 4700, 6000),
+            ...makeSiloAndPlatform(6 / 8, 4700, 6000,180),
             makeBuildingOnGround(7.5 / 8, 100, 4700, 6000),
             makeGround(4700, 6000, 'brown')
         ],
