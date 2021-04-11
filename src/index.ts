@@ -1,8 +1,6 @@
 
 import { DefenderGame, DefenderGameElements } from './DefenderGame'
 
-import './style.css'
-
 
 const canvas = document.querySelector('canvas')
 
