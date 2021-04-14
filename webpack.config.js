@@ -4,7 +4,6 @@ module.exports = {
   entry: {
     defender:'./src/index.ts',
   },
-  watch:true,
   module: {
     rules: [
       {
