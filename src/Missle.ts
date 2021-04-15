@@ -117,7 +117,8 @@ class Missile extends Body {
             color: 'red',
             fillColor: redExplosionGradient,
             isFromPlayer: true,
-        }).enterWorld(this.world)
+        }).enterWorld(this.world);
+        this.world.emitter.emit('SFX',{soundName:'boom'});
     }
 
     handleCollision(report: CollisionDetection.CollisionReport) {

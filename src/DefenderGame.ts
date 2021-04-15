@@ -21,17 +21,21 @@ class DefenderGame {
     tickCount: number
     score: number
     levelNumber: number
+    soundPlayer: Engine.SoundPlayer
     status: "PLAY" | "PAUSE" | "GAMEOVER" | "PRELEVEL" | "POSTLEVEL"
 
-    constructor(canvas: HTMLCanvasElement, elements: DefenderGameElements, config: { frameFill?: string } = {}) {
+    constructor(canvas: HTMLCanvasElement, elements: DefenderGameElements, config: { frameFill?: string, soundPlayer?: Engine.SoundPlayer } = {}) {
         this.canvas = canvas
         this.elements = elements
         this.handleClick = this.handleClick.bind(this)
         this.handleMousemove = this.handleMousemove.bind(this)
         this.handleTick = this.handleTick.bind(this)
         this.handlePoints = this.handlePoints.bind(this)
+        this.playSound = this.playSound.bind(this)
 
-        this.frameFill = config.frameFill || 'white'
+        this.frameFill = config.frameFill || 'white';
+        this.soundPlayer = config.soundPlayer || null;
+
         if (this.elements.pauseButton) {
             this.elements.pauseButton.addEventListener('click', this.togglePause.bind(this))
         }
@@ -74,7 +78,8 @@ class DefenderGame {
 
     setStatusPlay() {
         this.status = "PLAY"
-        this.setCaption()
+        this.setCaption();
+        this.playSound({ soundName: 'alarm', config: {} });
     }
 
     setStatusGameOver() {
@@ -83,7 +88,6 @@ class DefenderGame {
     }
 
     setStatusPostlevel() {
-
         const survivingBuildings = this.world.bodies.filter(
             body => body.typeId === "Building" && (body as Building).data.isDestroyed === false
         ) as Building[];
@@ -117,7 +121,7 @@ class DefenderGame {
         <p>Level ${this.levelNumber}</p> 
         <p>Gravity ${this.currentLevel.gravity}g</p>
         <p>Atmosphere ${this.currentLevel.airDensity}</p>
-        `)
+        `);
     }
 
     setStatusPause() {
@@ -139,7 +143,6 @@ class DefenderGame {
         this.removeEventHandlers()
         if (this.viewPort.world) { this.viewPort.unsetWorld() }
         this.setStatusPrelevel()
-
     }
 
     applyEventHandlers() {
@@ -148,6 +151,8 @@ class DefenderGame {
 
         this.world.emitter.on('tick', this.handleTick)
         this.world.emitter.on('points', this.handlePoints)
+
+        this.world.emitter.on('SFX', this.playSound)
     }
 
     removeEventHandlers() {
@@ -155,6 +160,7 @@ class DefenderGame {
         this.canvas.removeEventListener('mousemove', this.handleMousemove)
         this.world.emitter.off('tick', this.handleTick)
         this.world.emitter.off('points', this.handlePoints)
+        this.world.emitter.off('SFX', this.playSound)
     }
 
     togglePause() {
@@ -271,6 +277,10 @@ class DefenderGame {
         }
     }
 
+    playSound(payload: { soundName: string, config: any }) {
+        if (!this.soundPlayer) { return }
+        this.soundPlayer.play(payload.soundName, payload.config);
+    }
 }
 
 export { DefenderGame, DefenderGameElements }

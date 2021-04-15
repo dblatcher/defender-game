@@ -45,10 +45,12 @@ class MissileSilo extends Body {
             heading: headingFromLauncher,
             target,
             explosionDuration: 20,
-            explosionSize: 200,
+            explosionSize: 250,
             thrust: 20000, maxThrust: 20000, density: .2,
             size: 15
         }).enterWorld(this.world)
+
+        this.world.emitter.emit('SFX',{soundName:'shoot'});
     }
 
 

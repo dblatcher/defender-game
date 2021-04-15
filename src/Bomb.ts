@@ -40,7 +40,8 @@ class Bomb extends Body {
             color: explosionIsFromPlayer ? "red" : "darkorange",
             fillColor: explosionIsFromPlayer ? redExplosionGradient : blueExplosionGradient,
             isFromPlayer: explosionIsFromPlayer
-        }).enterWorld(this.world)
+        }).enterWorld(this.world);
+        this.world.emitter.emit('SFX',{soundName:'boom'});
     }
 
     reportPoints(quantity: number) {

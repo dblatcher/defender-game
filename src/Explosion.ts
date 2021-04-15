@@ -55,6 +55,7 @@ class Explosion extends ExpandingRing {
                 .forEach(siloOrBuilding => {
                     if (Geometry.areCirclesIntersecting(this, siloOrBuilding.shapeValues)) {
                         (siloOrBuilding as MissileSilo | Building).data.isDestroyed = true;
+                        this.world.emitter.emit('SFX',{soundName:'blast'});
                     }
                 })
         }
