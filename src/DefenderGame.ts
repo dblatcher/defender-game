@@ -79,7 +79,7 @@ class DefenderGame {
     setStatusPlay() {
         this.status = "PLAY"
         this.setCaption();
-        this.playSound({ soundName: 'alarm', config: {} });
+        this.playSound({ soundName: 'alarm', config: {volume:.25} });
     }
 
     setStatusGameOver() {
