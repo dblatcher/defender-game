@@ -88,3 +88,6 @@ dist/
 
 # built tests folder
 tests/built/
+
+# thumbnails etc?
+.DS_Store
