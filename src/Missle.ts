@@ -2,6 +2,7 @@ import { Body, Force, BodyData, Shape, Geometry, RenderFunctions, CollisionDetec
 import { Bomb } from './Bomb'
 import { Explosion } from './Explosion'
 import { redExplosionGradient } from './gradients'
+import { SmokeTrail } from './smokeTrail'
 
 const { getVectorX, getVectorY, reverseHeading } = Geometry
 
@@ -28,6 +29,7 @@ class MissileData implements BodyData {
 
 class Missile extends Body {
     data: MissileData
+    positionLastTick: Geometry.Point
     constructor(config: MissileData, momentum: Force = null) {
         super(config, momentum);
         this.data.color = config.color || 'red'
@@ -38,12 +40,27 @@ class Missile extends Body {
         this.data.hasExplodedAlready = config.hasExplodedAlready || false
         this.data.explosionDuration = config.explosionDuration || 10
         this.data.explosionSize = config.explosionSize || 100
+
+        this.positionLastTick = {
+            x: this.data.x,
+            y: this.data.y
+        }
     }
 
     get typeId() { return 'Missile' }
 
-    move() {
-        Body.prototype.move.apply(this, [])
+    tick() {
+
+        if (this.world) {
+            new SmokeTrail({
+                x: this.positionLastTick.x,
+                y: this.positionLastTick.y,
+                duration: 6,
+            }).enterWorld(this.world)
+        }
+
+        this.positionLastTick.x = this.data.x;
+        this.positionLastTick.y = this.data.y;
 
         if (this.shapeValues.y < this.data.target.y) {
             this.explode()
@@ -118,7 +135,7 @@ class Missile extends Body {
             fillColor: redExplosionGradient,
             isFromPlayer: true,
         }).enterWorld(this.world);
-        this.world.emitter.emit('SFX',{soundName:'boom'});
+        this.world.emitter.emit('SFX', { soundName: 'boom' });
     }
 
     handleCollision(report: CollisionDetection.CollisionReport) {

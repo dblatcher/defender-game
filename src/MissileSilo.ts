@@ -44,8 +44,8 @@ class MissileSilo extends Body {
             x: startingPoint.x, y: startingPoint.y,
             heading: headingFromLauncher,
             target,
-            explosionDuration: 20,
-            explosionSize: 250,
+            explosionDuration: 25,
+            explosionSize: 275,
             thrust: 20000, maxThrust: 20000, density: .2,
             size: 15
         }).enterWorld(this.world)

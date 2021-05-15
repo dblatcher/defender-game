@@ -14,7 +14,7 @@ class Bomb extends Body {
         this.data.headingFollowsDirection = true
     }
 
-    get scoreValue() {return 10}
+    get scoreValue() { return 10 }
 
     handleCollision(report: CollisionDetection.CollisionReport) {
         const otherThing = report.item1 === this ? report.item2 : report.item1
@@ -35,13 +35,13 @@ class Bomb extends Body {
         new Explosion({
             x: this.data.x,
             y: this.data.y,
-            size: 150,
-            duration: 15,
-            color: explosionIsFromPlayer ? "red" : "darkorange",
-            fillColor: explosionIsFromPlayer ? redExplosionGradient : blueExplosionGradient,
+            size: explosionIsFromPlayer ? 250 : 150,
+            duration: explosionIsFromPlayer ? 25 : 15,
+            color: explosionIsFromPlayer ? "blue" : "darkorange",
+            fillColor: explosionIsFromPlayer ?  blueExplosionGradient : redExplosionGradient,
             isFromPlayer: explosionIsFromPlayer
         }).enterWorld(this.world);
-        this.world.emitter.emit('SFX',{soundName:'boom'});
+        this.world.emitter.emit('SFX', { soundName: 'boom' });
     }
 
     reportPoints(quantity: number) {
@@ -62,25 +62,25 @@ class Bomb extends Body {
         const { shapeValues } = this
         const { heading, size } = this.data
 
-        const tailWidth = size * (6/10)
-        const tailLength = size * (20/10)
+        const tailWidth = size * (6 / 10)
+        const tailLength = size * (20 / 10)
 
-        const mid = translatePoint(shapeValues, getXYVector(size+tailWidth, reverseHeading(heading)));
+        const mid = translatePoint(shapeValues, getXYVector(size + tailWidth, reverseHeading(heading)));
 
-        const midLeft = translatePoint(shapeValues, getXYVector(tailWidth/2, heading + Geometry._90deg));
+        const midLeft = translatePoint(shapeValues, getXYVector(tailWidth / 2, heading + Geometry._90deg));
         const backLeft = translatePoint(translatePoint(midLeft, getXYVector(tailLength, reverseHeading(heading))), getXYVector(tailWidth, heading + Geometry._90deg));
-        const midRight = translatePoint(shapeValues, getXYVector(tailWidth/2, heading - Geometry._90deg));
-        const backRight = translatePoint( translatePoint(midRight, getXYVector(tailLength, reverseHeading(heading))), getXYVector(tailWidth, heading - Geometry._90deg));
+        const midRight = translatePoint(shapeValues, getXYVector(tailWidth / 2, heading - Geometry._90deg));
+        const backRight = translatePoint(translatePoint(midRight, getXYVector(tailLength, reverseHeading(heading))), getXYVector(tailWidth, heading - Geometry._90deg));
 
-        RenderFunctions.renderPolygon.onCanvas(ctx, [midLeft, backLeft,mid, backRight, midRight], {
+        RenderFunctions.renderPolygon.onCanvas(ctx, [midLeft, backLeft, mid, backRight, midRight], {
             fillColor: 'gray',
             strokeColor: 'white'
         }, viewPort)
-        RenderFunctions.renderWedge.onCanvas(ctx, Object.assign({heading, angle:_90deg*2},shapeValues), {
+        RenderFunctions.renderWedge.onCanvas(ctx, Object.assign({ heading, angle: _90deg * 2 }, shapeValues), {
             fillColor: 'crimson',
             strokeColor: 'white'
         }, viewPort);
-        RenderFunctions.renderWedge.onCanvas(ctx, Object.assign({heading:reverseHeading(heading), angle:_90deg*2},shapeValues), {
+        RenderFunctions.renderWedge.onCanvas(ctx, Object.assign({ heading: reverseHeading(heading), angle: _90deg * 2 }, shapeValues), {
             fillColor: 'gray',
             strokeColor: 'white'
         }, viewPort);
