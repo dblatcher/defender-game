@@ -39,7 +39,7 @@ main figure {
 main figure canvas {
     box-sizing: border-box;
     max-height: inherit;
-    margin: 0 5px;
+    max-width: 100%;
     cursor: crosshair;
 }
 
