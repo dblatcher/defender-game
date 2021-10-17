@@ -1,4 +1,4 @@
-import { Effect, ViewPort, RenderFunctions, EffectData } from "../../worlds/src";
+import { Effect, ViewPort, RenderFunctions, EffectData } from "physics-worlds";
 
 
 class SmokeTrail extends Effect {

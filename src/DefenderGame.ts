@@ -1,4 +1,4 @@
-import * as Engine from '../../worlds/src/index'
+import * as PhysicsWorlds from "physics-worlds"
 import { Bomb } from './Bomb';
 import { Building } from './Building';
 import { createWorldFromLevel, levels } from './createWorld';
@@ -13,18 +13,18 @@ interface DefenderGameElements {
 }
 
 class DefenderGame {
-    world: Engine.World
+    world: PhysicsWorlds.World
     canvas: HTMLCanvasElement
-    viewPort: Engine.ViewPort
+    viewPort: PhysicsWorlds.ViewPort
     frameFill?: string
     elements: DefenderGameElements
     tickCount: number
     score: number
     levelNumber: number
-    soundPlayer: Engine.SoundPlayer
+    soundPlayer: PhysicsWorlds.SoundPlayer
     status: "PLAY" | "PAUSE" | "GAMEOVER" | "PRELEVEL" | "POSTLEVEL"
 
-    constructor(canvas: HTMLCanvasElement, elements: DefenderGameElements, config: { frameFill?: string, soundPlayer?: Engine.SoundPlayer } = {}) {
+    constructor(canvas: HTMLCanvasElement, elements: DefenderGameElements, config: { frameFill?: string, soundPlayer?: PhysicsWorlds.SoundPlayer } = {}) {
         this.canvas = canvas
         this.elements = elements
         this.handleClick = this.handleClick.bind(this)
@@ -107,7 +107,7 @@ class DefenderGame {
         this.tickCount = -1
 
         this.world = createWorldFromLevel(this.currentLevel)
-        this.viewPort = Engine.ViewPort.fitToSize(this.world, this.canvas, 750, 500)
+        this.viewPort = PhysicsWorlds.ViewPort.fitToSize(this.world, this.canvas, 750, 500)
         this.viewPort.framefill = this.frameFill
 
         this.applyEventHandlers()
@@ -236,15 +236,15 @@ class DefenderGame {
         }
     }
 
-    aimSilos(target: Engine.Geometry.Point) {
+    aimSilos(target: PhysicsWorlds.Geometry.Point) {
         this.world.bodies.filter(body => body.typeId === "MissileSilo")
             .forEach(silo => {
                 if (target.y > silo.shapeValues.top) { return }
-                silo.data.heading = Engine.Geometry.getHeadingFromPointToPoint(target, silo.shapeValues)
+                silo.data.heading = PhysicsWorlds.Geometry.getHeadingFromPointToPoint(target, silo.shapeValues)
             })
     }
 
-    fireNearestSilo(target: Engine.Geometry.Point) {
+    fireNearestSilo(target: PhysicsWorlds.Geometry.Point) {
 
         // don't let player keep firing after the bombs are gone - the explosions stop the level from being over
         const areBombs = this.world.bodies.find(body => body.typeId === "Bomb");
@@ -254,7 +254,7 @@ class DefenderGame {
             .filter(body => body.typeId === "MissileSilo")
             .filter((silo) => !(silo as MissileSilo).data.isDestroyed)
             .sort((siloA, siloB) =>
-                Engine.Geometry.getDistanceBetweenPoints(siloA.shapeValues, target) - Engine.Geometry.getDistanceBetweenPoints(siloB.shapeValues, target)
+                PhysicsWorlds.Geometry.getDistanceBetweenPoints(siloA.shapeValues, target) - PhysicsWorlds.Geometry.getDistanceBetweenPoints(siloB.shapeValues, target)
             )[0] as MissileSilo
 
         if (closestSilo) {
@@ -265,7 +265,7 @@ class DefenderGame {
     addRandomBombs(quantity: number) {
         let x: number, forceDirection: number, forceMagnitude: number, i = 0, size = 30;
 
-        const { _90deg } = Engine.Geometry
+        const { _90deg } = PhysicsWorlds.Geometry
         const _45deg = _90deg / 2
 
         for (i = 0; i < quantity; i++) {
@@ -273,7 +273,7 @@ class DefenderGame {
             forceDirection = (Math.random() * _90deg) - _45deg
             forceMagnitude = Math.random() * 10
             size = Math.random() > .5 ? 30 : 45
-            new Bomb({ x, y: 0, size, density: .1 }, new Engine.Force(forceMagnitude, forceDirection)).enterWorld(this.world)
+            new Bomb({ x, y: 0, size, density: .1 }, new PhysicsWorlds.Force(forceMagnitude, forceDirection)).enterWorld(this.world)
         }
     }
 

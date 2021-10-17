@@ -1,4 +1,4 @@
-import * as Engine from '../../worlds/src/index'
+import * as physicsWorlds from "physics-worlds"
 
 interface BombWaveFunction {
     (tickCount: number): number
@@ -6,23 +6,23 @@ interface BombWaveFunction {
 
 class DefenderGameLevel {
     duration: number
-    contents: Engine.Body[]
+    contents: physicsWorlds.Body[]
     height: number
     width: number
     gravity:number
     airDensity:number
     bombWaveFunction: BombWaveFunction
-    backgrounds: Engine.BackGround[]
+    backgrounds: physicsWorlds.BackGround[]
 
     constructor(data: {
         duration: number
-        contents: Engine.Body[]
+        contents: physicsWorlds.Body[]
         height: number
         width: number
         gravity?: number
         airDensity?: number
         bombWaveFunction: BombWaveFunction
-        backgrounds?: Engine.BackGround[]
+        backgrounds?: physicsWorlds.BackGround[]
     }) {
         this.duration = data.duration
         this.contents = data.contents;

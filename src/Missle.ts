@@ -1,4 +1,4 @@
-import { Body, Force, BodyData, Shape, Geometry, RenderFunctions, CollisionDetection, ViewPort, ExpandingRing } from '../../worlds/src/index'
+import { Body, Force, BodyData, Shape, Geometry, RenderFunctions, CollisionDetection, ViewPort, ExpandingRing } from "physics-worlds"
 import { Bomb } from './Bomb'
 import { Explosion } from './Explosion'
 import { redExplosionGradient } from './gradients'

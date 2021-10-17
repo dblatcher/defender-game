@@ -1,5 +1,5 @@
 
-import { SoundPlayer } from '../../worlds/src';
+import { SoundPlayer } from "physics-worlds";
 import { DefenderGame, DefenderGameElements } from './DefenderGame'
 
 

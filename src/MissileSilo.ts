@@ -1,4 +1,4 @@
-import { Body, BodyData, Shape, AbstractGradientFill, ViewPort, shapes, RenderFunctions, Geometry } from "../../worlds/src";
+import { Body, BodyData, Shape, AbstractGradientFill, ViewPort, shapes, RenderFunctions, Geometry } from "physics-worlds";
 import { Missile } from "./Missle";
 
 

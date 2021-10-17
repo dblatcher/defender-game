@@ -1,4 +1,4 @@
-import * as Engine from '../../worlds/src/index'
+import * as physicsWorlds from 'physics-worlds'
 import { Building } from './Building'
 import { MissileSilo } from './MissileSilo'
 import { DefenderGameLevel } from './DefenderGameLevel'
@@ -9,14 +9,14 @@ const purpleSky = makeSkyBackground([[.2, 'black'], [.9, 'purple']])
 
 const yellowSky = makeSkyBackground([[.1, 'black'], [.5, 'darkgoldenrod'], [.8,'darkgoldenrod'], [.9,'skyblue']])
 
-const stars = new Engine.StarField({
+const stars = new physicsWorlds.StarField({
     numberOfStars: 50,
     depth: 1,
     height: 600,
     width: 6000,
 })
 
-const sparceStars = new Engine.StarField({
+const sparceStars = new physicsWorlds.StarField({
     numberOfStars: 25,
     depth: 1,
     height: 800,
@@ -44,8 +44,8 @@ function makeSiloAndPlatform(relativeX: number, groundLevel: number, worldWidth:
         heading: Math.PI
     })
 
-    const platform = new Engine.Body ({
-        shape: Engine.shapes.square,
+    const platform = new physicsWorlds.Body ({
+        shape: physicsWorlds.shapes.square,
         x: worldWidth * relativeX,
         y: groundLevel - platformSize,
         size: platformSize,
@@ -66,9 +66,9 @@ function makeBuildingOnGround(relativeX: number, size: number, groundLevel: numb
     })
 }
 
-function makeGround(groundLevel: number, worldWidth: number, fill: string | Engine.AbstractGradientFill = 'brown') {
-    return new Engine.Body({
-        shape: Engine.shapes.square,
+function makeGround(groundLevel: number, worldWidth: number, fill: string | physicsWorlds.AbstractGradientFill = 'brown') {
+    return new physicsWorlds.Body({
+        shape: physicsWorlds.shapes.square,
         x: worldWidth / 2, y: groundLevel + worldWidth / 2, size: worldWidth / 2,
         elasticity: .1,
         immobile: true,
@@ -171,12 +171,12 @@ const levels = [
 
 function createWorldFromLevel(level: DefenderGameLevel) {
 
-    return new Engine.World(
+    return new physicsWorlds.World(
         level.contents.map(body => body.duplicate())
         , {
             width: level.width,
             height: level.height,
-            globalGravityForce: new Engine.Force(level.gravity, 0),
+            globalGravityForce: new physicsWorlds.Force(level.gravity, 0),
             gravitationalConstant: .125,
             airDensity: level.airDensity,
             backGrounds: level.backgrounds,

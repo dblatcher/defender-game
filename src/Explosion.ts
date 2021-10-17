@@ -1,5 +1,4 @@
-import { RadialGradientFill, Body, BodyData, ViewPort, RenderFunctions, Effect, EffectData, ExpandingRing, Geometry, Shape, shapes, AbstractGradientFill } from "../../worlds/src";
-import { ExpandingRingData } from "../../worlds/src/Effect";
+import { ViewPort, RenderFunctions, ExpandingRing, ExpandingRingData, Geometry, AbstractGradientFill } from "physics-worlds";
 import { Bomb } from "./Bomb";
 import { Building } from "./Building";
 import { MissileSilo } from "./MissileSilo";
@@ -55,7 +54,7 @@ class Explosion extends ExpandingRing {
                 .forEach(siloOrBuilding => {
                     if (Geometry.areCirclesIntersecting(this, siloOrBuilding.shapeValues)) {
                         (siloOrBuilding as MissileSilo | Building).data.isDestroyed = true;
-                        this.world.emitter.emit('SFX',{soundName:'blast'});
+                        this.world.emitter.emit('SFX', { soundName: 'blast' });
                     }
                 })
         }

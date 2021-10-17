@@ -1,4 +1,4 @@
-import { AbstractGradientFill, Body, BodyData, RenderFunctions, Shape, shapes, ViewPort, Geometry } from "../../worlds/src";
+import { AbstractGradientFill, Body, BodyData, RenderFunctions, Shape, shapes, ViewPort, Geometry } from "physics-worlds";
 
 class BuildingData implements BodyData {
     x: number

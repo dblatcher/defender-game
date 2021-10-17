@@ -1,4 +1,4 @@
-import { RadialGradientFill, Geometry, LinearGradientFill, ViewPort, BackGround, RenderFunctions } from "../../worlds/src";
+import { RadialGradientFill, Geometry, LinearGradientFill, ViewPort, BackGround, RenderFunctions } from "physics-worlds";
 
 const redExplosionGradient = new RadialGradientFill({
     fallbackColor: "transparent",

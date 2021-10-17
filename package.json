@@ -1,7 +1,7 @@
 {
   "name": "defender",
   "version": "1.0.0",
-  "description": "",
+  "description": "The defender browser game.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -19,6 +19,7 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
+    "physics-worlds": "^1.0.1",
     "tiny-emitter": "^2.1.0"
   }
 }

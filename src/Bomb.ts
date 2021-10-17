@@ -1,9 +1,9 @@
-import { CollisionDetection, Body, RenderFunctions, ViewPort, Geometry, BodyData, Force } from "../../worlds/src";
+import { CollisionDetection, Body, RenderFunctions, ViewPort, Geometry, BodyData, Force } from "physics-worlds";
 import { Explosion } from "./Explosion";
 import { Missile } from "./Missle";
 
 import { redExplosionGradient, blueExplosionGradient } from './gradients'
-import { getXYVector, reverseHeading, translatePoint, _90deg } from "../../worlds/src/geometry";
+const { getXYVector, reverseHeading, translatePoint, _90deg } = Geometry;
 
 class Bomb extends Body {
 
